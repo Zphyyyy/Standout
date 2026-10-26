@@ -1,0 +1,16 @@
+project_id = "standout"
+
+# All functions verify the caller themselves (see _shared/util.ts requireUser),
+# so the platform-level JWT check is turned off. Public ones must be callable
+# without a session (organization requests, guardian confirmation).
+[functions.org-request]
+verify_jwt = false
+
+[functions.guardian]
+verify_jwt = false
+
+[functions.admin-review-org]
+verify_jwt = false
+
+[functions.scan-certificate]
+verify_jwt = false
