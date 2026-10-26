@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Standout – student achievement profiles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f4f7fa;--surface:#fff;--ink:#14213d;--muted:#5b6679;--line:#d9e0ea;--accent:#0e7c7b;--accent-ink:#fff;--hi:#ffd23f;
+  --s:75%;--l:90%;--tl:25%;color-scheme:light;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1524;--surface:#16203a;--ink:#eaf0fb;--muted:#9aa8c2;--line:#2a3757;--accent:#4fd1c5;--accent-ink:#0e1524;--hi:#ffd23f;
+  --s:35%;--l:24%;--tl:82%;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1524;--surface:#16203a;--ink:#eaf0fb;--muted:#9aa8c2;--line:#2a3757;--accent:#4fd1c5;--accent-ink:#0e1524;--hi:#ffd23f;--s:35%;--l:24%;--tl:82%;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);color:var(--ink);font:400 16px/1.5 "Instrument Sans",system-ui,sans-serif;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:32px 32px;background-attachment:fixed;position:relative}
+body::before{content:"";position:fixed;inset:0;background:var(--bg);opacity:.85;z-index:-1;pointer-events:none}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header.top{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.brand{font:800 24px "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;margin-right:auto}
+.brand mark{background:var(--hi);color:#14213d;padding:0 6px;border-radius:3px}
+nav{display:flex;gap:4px}
+nav button,.chip,.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 16px;cursor:pointer;font-weight:500}
+nav button[aria-current="page"],.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.hero{padding:40px 0 20px}
+.hero h1{font-size:clamp(32px,6vw,56px);font-weight:800;letter-spacing:-.03em;max-width:15ch}
+.hero p{max-width:52ch;color:var(--muted);margin:12px 0 0}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0}
+.tools input[type=search],.tools select,.field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;width:100%}
+.tools input[type=search]{flex:1 1 220px;width:auto}
+.tools select{width:auto}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding-bottom:48px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;text-align:left;cursor:pointer;width:100%}
+.card:hover{border-color:var(--accent)}
+.who{display:flex;gap:12px;align-items:center}
+.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font:700 18px "Bricolage Grotesque",sans-serif;background:hsl(var(--h) var(--s) var(--l));color:hsl(var(--h) 50% var(--tl));flex:none}
+.card h3{font-size:19px}
+.sub{color:var(--muted);font-size:14px}
+.tag{display:inline-block;font-size:13px;font-weight:500;padding:2px 10px;border-radius:999px;background:hsl(var(--h) var(--s) var(--l));color:hsl(var(--h) 50% var(--tl))}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.stats{display:flex;gap:16px;font-size:14px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px;margin-top:auto}
+.stats b{color:var(--ink);font-family:"Bricolage Grotesque",sans-serif;font-size:18px}
+.star{color:var(--accent);font-weight:600;font-size:14px}
+.empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+dialog{border:1px solid var(--line);border-radius:14px;padding:0;background:var(--surface);color:var(--ink);width:min(640px,94vw);max-height:90vh}
+dialog::backdrop{background:rgba(10,15,30,.6)}
+.dlg{padding:24px;display:flex;flex-direction:column;gap:16px}
+.dlg-head{display:flex;gap:14px;align-items:center}
+.dlg-head .avatar{width:64px;height:64px;font-size:24px}
+.dlg-head h2{font-size:26px}
+.ach{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ach li{display:grid;grid-template-columns:52px 1fr auto;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
+.ach .yr{font:700 18px "Bricolage Grotesque",sans-serif;color:var(--muted)}
+.ach strong{display:block}
+.ach p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.ver{font-size:12px;font-weight:600;color:var(--accent);white-space:nowrap}
+.ver.pending{color:var(--muted);font-weight:500}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:32px 0 48px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.panel h2{font-size:22px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:500}
+.field textarea{resize:vertical;min-height:64px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:13px;color:var(--muted)}
+.del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline;padding:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:500;z-index:20}
+.toast[hidden]{display:none}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop .2s ease-out}@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}}}
+.scan{display:flex;flex-direction:column;gap:8px;padding:14px;border:1.5px dashed var(--accent);border-radius:10px;background:var(--bg)}
+.sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.sr:focus-visible+label{outline:3px solid var(--accent);outline-offset:2px}
+label.btn{text-align:center}
+a.btn{text-decoration:none;display:inline-block;text-align:center;color:inherit}
+a.btn.primary{color:var(--accent-ink)}
+.thumb{display:block;width:64px;height:auto;border-radius:4px;border:1px solid var(--line);margin-top:6px}
+.flag{color:#b3261e;font-size:13px;margin:2px 0 0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .flag{color:#ff9a8f}}
+:root[data-theme="dark"] .flag{color:#ff9a8f}
+.badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;text-align:center;margin-left:6px}
+.ibhead{display:flex;justify-content:space-between;align-items:center}
+.ib{display:grid;grid-template-columns:230px 1fr;gap:16px;min-height:320px}
+.ibl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ibi{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;display:block}
+.ibi.on{border-color:var(--accent)}
+.ibi .sn{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot{float:right;background:var(--accent);color:var(--accent-ink);border-radius:999px;font-size:12px;font-weight:700;padding:0 7px}
+.ibt{display:flex;flex-direction:column;gap:12px;min-width:0}
+.back{display:none;align-self:flex-start}
+.msgs{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;padding:4px}
+.bub{max-width:82%;padding:8px 12px;border-radius:14px;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere}
+.bub.them{background:var(--bg);border:1px solid var(--line);align-self:flex-start}
+.bub.me{background:var(--accent);color:var(--accent-ink);align-self:flex-end}
+.reply{display:flex;gap:8px;align-items:flex-end}
+.reply textarea{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;min-height:44px;resize:vertical}
+@media (max-width:600px){.ib{grid-template-columns:1fr}.ib.open .ibl{display:none}.ib:not(.open) .ibt{display:none}.back{display:inline-block}}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.steps span{flex:1;min-width:110px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);font-size:13px;text-align:center}
+.steps .on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.steps .done{border-color:var(--accent);color:var(--accent)}
+canvas.sig{width:100%;height:140px;background:#fff;border:1px solid var(--line);border-radius:8px;touch-action:none;display:block;cursor:crosshair}
+.cb{display:flex;gap:8px;align-items:flex-start;font-size:14px}
+.cb input{margin-top:4px}
+.demo{background:var(--bg);border:1px dashed var(--line);padding:10px;border-radius:8px;font-size:13px}
+.code{font-family:ui-monospace,Menlo,monospace;font-weight:700}
+.req{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.req input.rj{flex:1;min-width:140px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.checks{list-style:none;padding:0;margin:0;font-size:14px}
+.checks li:not(.flag){color:var(--accent)}
+.sigimg{height:64px;background:#fff;border:1px solid var(--line);border-radius:6px;align-self:flex-start}
+.kv{font-size:14px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand"><mark>Stand</mark>out</div>
+  <nav aria-label="Main">
+    <button data-view="discover" aria-current="page">Discover students</button>
+    <button data-view="me">My profile</button>
+    <button data-view="org">For organizations</button>
+    <button data-view="admin">Admin (demo)</button>
+  </nav>
+  <button class="btn" id="bell" aria-label="Messages">Notifications<span class="badge hidden" id="badge">0</span></button>
+</div></header>
+
+<main class="wrap">
+<section id="discover">
+  <div class="hero">
+    <h1>Find students who have already done the work.</h1>
+    <p>Browse verified awards, certifications and projects from school students. Filter by field and grade, then shortlist the ones you want to reach.</p>
+  </div>
+  <div class="tools">
+    <input type="search" id="q" placeholder="Search by name, school or achievement" aria-label="Search students">
+    <select id="grade" aria-label="Filter by grade"><option value="">All grades</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select>
+    <button class="chip" id="onlyShort" aria-pressed="false">Shortlist (0)</button>
+  </div>
+  <div class="chips" id="cats" role="group" aria-label="Filter by field"></div>
+  <p class="note" id="count" aria-live="polite"></p>
+  <div class="grid" id="list"></div>
+</section>
+
+<section id="me" class="hidden">
+  <div class="two">
+    <div class="panel">
+      <h2>Your profile</h2>
+      <label class="field">Full name<input id="pName" maxlength="60"></label>
+      <div class="f2">
+        <label class="field">School<input id="pSchool" maxlength="80"></label>
+        <label class="field">Grade<select id="pGrade"><option>8</option><option>9</option><option>10</option><option selected>11</option><option>12</option></select></label>
+      </div>
+      <label class="field">Phone (optional, shown to reviewers who tap Call)<input id="pPhone" type="tel" maxlength="20" placeholder="+91 "></label>
+      <label class="field">About you<textarea id="pBio" maxlength="240" placeholder="What do you want universities and organizations to know?"></textarea></label>
+      <h2 style="margin-top:8px">Achievements</h2>
+      <p class="note" style="margin:0">Add awards, certifications, degrees and feats one at a time. Each one is added from a short form.</p>
+      <button class="btn primary" id="newA">New achievement</button>
+      <dialog id="aDlg" aria-label="New achievement"><div class="dlg">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2>New achievement</h2><button class="btn" type="button" id="aClose">Cancel</button></div>
+      <div class="scan hidden" id="scan">
+        <strong>Scan a certificate</strong>
+        <span class="note">Upload a photo or PDF (first page). Claude reads it and fills in the form below. You check the details before saving.</span>
+        <input type="file" id="cert" class="sr" accept="image/*,application/pdf">
+        <label class="btn primary" for="cert" id="certBtn">Upload certificate</label>
+        <div class="note" id="scanSt" aria-live="polite"></div>
+      </div>
+      <label class="field">Title<input id="aTitle" maxlength="90" placeholder="e.g. Gold medal, State Science Olympiad"></label>
+      <div class="f2">
+        <label class="field">Field<select id="aCat"></select></label>
+        <label class="field">Type<select id="aType"><option>Award</option><option>Certification</option><option>Degree</option><option>Feat</option><option>Other</option></select></label>
+      </div>
+      <label class="field hidden" id="aCatW">Field (please specify)<input id="aCatO" maxlength="40" placeholder="e.g. Chess, Robotics, Debate"></label>
+      <label class="field hidden" id="aTypeW">Type (please specify)<input id="aTypeO" maxlength="40" placeholder="e.g. Publication, Patent, Internship"></label>
+      <div class="f2">
+        <label class="field">Year<input id="aYear" type="number" min="2000" max="2026" value="2026"></label>
+        <label class="field">Issued by<input id="aBy" maxlength="60" placeholder="Organization or event"></label>
+      </div>
+      <label class="field">Details<textarea id="aDesc" maxlength="200" placeholder="One or two lines on what you did"></textarea></label>
+      <p class="flag" id="aErr" role="alert"></p>
+      <button class="btn primary" id="addA">Add achievement</button>
+      <p class="note">New entries show as “Pending” until a teacher or the issuer confirms them.</p>
+      </div></dialog>
+    </div>
+    <div>
+      <p class="note" style="margin-top:0">This is how reviewers see you</p>
+      <div id="preview"></div>
+    </div>
+  </div>
+</section>
+<section id="org" class="hidden">
+  <div class="hero">
+    <h1>Verified organizations only.</h1>
+    <p>To protect students, only organizations that pass a three-step check and are approved by our team can message or call them. Browsing profiles stays open to everyone.</p>
+  </div>
+  <p class="note">Prototype: the checks below are simulated in the browser. In the live product, codes, documents and approvals are handled on the server.</p>
+  <div class="two"><div id="orgBox"></div><div id="orgIn"></div></div>
+</section>
+<section id="admin" class="hidden">
+  <div class="hero">
+    <h1>Organization requests</h1>
+    <p>Review each request, verify it independently, then approve or reject. Demo only: in the live product this is a separate, login-protected dashboard that only the platform owner can open.</p>
+  </div>
+  <div id="adminBody" style="display:flex;flex-direction:column;gap:16px;padding-bottom:48px"></div>
+</section>
+</main>
+
+<dialog id="dlg" aria-label="Student profile"></dialog>
+<dialog id="inbox" aria-label="Notifications and messages"><div class="dlg">
+  <div class="ibhead"><h2>Messages</h2><button class="btn" id="ibClose">Close</button></div>
+  <p class="note" style="margin:0">Messages from universities and organizations show up here. These are sample conversations for the demo.</p>
+  <div class="ib" id="ib"><ul class="ibl" id="ibList"></ul><div class="ibt" id="ibThread"></div></div>
+</div></dialog>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const CATS=[["Academics",210],["Science & Tech",175],["Sports",25],["Arts",320],["Leadership",260],["Service",140]];
+const hue=c=>(CATS.find(x=>x[0]===c)||[0,200])[1];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=id=>document.getElementById(id);
+const seed=[
+ {id:"s1",name:"Aanya Rao",school:"Delhi Public School, Bengaluru",grade:11,h:175,bio:"Builds low-cost water sensors for village borewells.",ach:[
+  {t:"Gold medal, National Science Olympiad",c:"Science & Tech",ty:"Award",y:2026,by:"SOF",d:"Rank 3 nationally among 120,000 participants.",v:1},
+  {t:"Google Cloud Digital Leader",c:"Science & Tech",ty:"Certification",y:2025,by:"Google",d:"",v:1},
+  {t:"Built IoT water-quality monitor",c:"Science & Tech",ty:"Feat",y:2025,by:"Self-initiated",d:"Deployed in 14 borewells across two villages.",v:1}]},
+ {id:"s2",name:"Kabir Mehta",school:"The Shri Ram School, Gurugram",grade:12,h:25,bio:"Junior national squash player and peer coach.",ach:[
+  {t:"U-17 National Squash Champion",c:"Sports",ty:"Award",y:2026,by:"Squash Rackets Federation of India",d:"",v:1},
+  {t:"Captain, school squash team",c:"Leadership",ty:"Feat",y:2025,by:"TSRS",d:"Led the team to an unbeaten season.",v:1}]},
+ {id:"s3",name:"Meera Iyer",school:"Chettinad Vidyashram, Chennai",grade:10,h:320,bio:"Carnatic vocalist and digital illustrator.",ach:[
+  {t:"Grade 8 Distinction, Carnatic Vocal",c:"Arts",ty:"Certification",y:2025,by:"Trinity Guildhall",d:"",v:1},
+  {t:"Winner, Young Illustrators Contest",c:"Arts",ty:"Award",y:2026,by:"Chitrakala Parishath",d:"Series on urban birds of Chennai.",v:0}]},
+ {id:"s4",name:"Arjun Nair",school:"Rishi Valley School, Andhra Pradesh",grade:12,h:210,bio:"Maths-first thinker. Writes proofs for fun.",ach:[
+  {t:"Selected for INMO",c:"Academics",ty:"Award",y:2026,by:"HBCSE",d:"Top 50 in the Regional Mathematical Olympiad.",v:1},
+  {t:"Intro to Real Analysis (online)",c:"Academics",ty:"Degree",y:2025,by:"MIT OpenCourseWare",d:"Completed with all problem sets.",v:0},
+  {t:"Founded the school maths circle",c:"Leadership",ty:"Feat",y:2024,by:"Self-initiated",d:"40 members meeting weekly.",v:1}]},
+ {id:"s5",name:"Sara Khan",school:"Mallya Aditi International, Bengaluru",grade:9,h:140,bio:"Runs a book drive for government schools.",ach:[
+  {t:"Collected 3,200 books for 11 schools",c:"Service",ty:"Feat",y:2026,by:"Reading Roots",d:"",v:1},
+  {t:"President’s Volunteer Service Award",c:"Service",ty:"Award",y:2025,by:"Youth for Seva",d:"",v:1}]}
+];
+let store={me:{id:"me",name:"",school:"",grade:11,bio:"",h:175,ach:[]},short:[]};
+try{const r=localStorage.getItem("standout-v1");if(r)store=Object.assign(store,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem("standout-v1",JSON.stringify(store))}catch(e){}};
+let cat="All",showShort=false;
+
+function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2200)}
+function all(){return store.me.name&&store.me.ach.length?[store.me,...seed]:seed}
+function initials(n){return n.split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?"}
+function tagsOf(s){return [...new Set(s.ach.map(a=>a.c))]}
+function cardHTML(s){
+  const ver=s.ach.filter(a=>a.v).length;
+  return `<div class="who"><div class="avatar" style="--h:${s.h}">${esc(initials(s.name))}</div>
+   <div><h3>${esc(s.name||"Your name")}${s.id==="me"?' <span class="star">(you)</span>':""}</h3><div class="sub">${esc(s.school||"Your school")} · Grade ${esc(s.grade)}</div></div></div>
+   <div class="tags">${tagsOf(s).map(c=>`<span class="tag" style="--h:${hue(c)}">${esc(c)}</span>`).join("")}</div>
+   <div class="sub">${esc(s.bio||"")}</div>
+   <div class="stats"><span><b>${s.ach.length}</b> achievements</span><span><b>${ver}</b> verified</span></div>`;
+}
+function renderList(){
+  const q=$("q").value.trim().toLowerCase(),g=$("grade").value;
+  const rows=all().filter(s=>(cat==="All"||s.ach.some(a=>cat==="Other"?!CATS.some(x=>x[0]===a.c):a.c===cat))&&(!g||String(s.grade)===g)&&(!showShort||store.short.includes(s.id))
+    &&(!q||(s.name+" "+s.school+" "+s.ach.map(a=>a.t).join(" ")).toLowerCase().includes(q)));
+  $("count").textContent=rows.length+(rows.length===1?" student":" students");
+  $("list").innerHTML=rows.length?rows.map(s=>`<button class="card" data-id="${s.id}" aria-label="Open ${esc(s.name)}">${cardHTML(s)}${store.short.includes(s.id)?'<span class="star">★ Shortlisted</span>':""}</button>`).join("")
+   :`<div class="empty">No students match these filters. Try a different field or clear the search.</div>`;
+  $("onlyShort").textContent="Shortlist ("+store.short.length+")";
+}
+function renderCats(){
+  $("cats").innerHTML=["All",...CATS.map(c=>c[0]),"Other"].map(c=>`<button class="chip" data-cat="${esc(c)}" aria-pressed="${c===cat}">${esc(c)}</button>`).join("");
+}
+function achHTML(s,del){
+  const rows=s.ach.map((a,i)=>({a,i})).sort((x,y)=>y.a.y-x.a.y);
+  if(!rows.length)return `<p class="note">No achievements yet. Add your first one on the left.</p>`;
+  return `<ul class="ach">${rows.map(({a,i})=>`<li><span class="yr">${esc(a.y)}</span><div><strong>${esc(a.t)}</strong>
+   <span class="tag" style="--h:${hue(a.c)}">${esc(a.c)}</span> <span class="sub">${esc(a.ty)}${a.by?" · "+esc(a.by):""}</span>
+   ${a.d?`<p>${esc(a.d)}</p>`:""}${a.ev&&a.ev.startsWith("data:image/jpeg;base64,")?`<img class="thumb" alt="Uploaded certificate" src="${a.ev}">`:""}</div>
+   <div>${a.v?'<span class="ver">✓ Verified</span>':'<span class="ver pending">Pending</span>'}${del?`<br><button class="del" data-del="${i}">Remove</button>`:""}</div></li>`).join("")}</ul>`;
+}
+function openProfile(id){
+  const s=all().find(x=>x.id===id);if(!s)return;
+  const on=store.short.includes(id);
+  $("dlg").innerHTML=`<div class="dlg"><div class="dlg-head"><div class="avatar" style="--h:${s.h}">${esc(initials(s.name))}</div>
+   <div><h2>${esc(s.name)}</h2><div class="sub">${esc(s.school)} · Grade ${esc(s.grade)}</div></div></div>
+   <p style="margin:0">${esc(s.bio||"")}</p>${achHTML(s,false)}<div id="cx"></div>
+   <div class="row"><button class="btn" id="close">Close</button>
+   ${id==="me"?"":`${store.session?'<button class="btn" id="dm">Message</button><button class="btn" id="call">Call</button>':'<button class="btn" id="gate">Message or call</button>'}<button class="btn primary" id="sl">${on?"Remove from shortlist":"Add to shortlist"}</button>`}</div></div>`;
+  $("dlg").showModal();
+  $("close").onclick=()=>$("dlg").close();
+  const sl=$("sl");if(sl)sl.onclick=()=>{store.short=on?store.short.filter(x=>x!==id):[...store.short,id];save();$("dlg").close();renderList();toast(on?"Removed from shortlist":"Added to shortlist")};
+  const first=s.name.split(" ")[0];
+  const dm=$("dm");if(dm)dm.onclick=()=>{
+    $("cx").innerHTML=`<div class="panel"><label class="field">Message to ${esc(first)}<textarea id="dmT" maxlength="500" placeholder="Introduce yourself and say why you’re reaching out"></textarea></label><div class="row"><button class="btn primary" id="dmS">Send message</button></div></div>`;
+    $("dmT").focus();
+    $("dmS").onclick=()=>{if(!$("dmT").value.trim()){$("dmT").focus();return}$("cx").innerHTML=`<p class="note">✓ Message sent to ${esc(first)} as ${esc((store.orgs.find(o=>o.id===store.session)||{}).name||"")}. Replies will appear in the student’s inbox.</p>`};
+  };
+  const gt=$("gate");if(gt)gt.onclick=()=>{
+    $("cx").innerHTML='<div class="panel"><b>Verified organizations only</b><p class="note" style="margin:0">To protect students, only organizations that have been checked and approved can message or call them.</p><div class="row" style="justify-content:flex-start"><button class="btn primary" id="gReq">Request an account</button><button class="btn" id="gIn">Sign in</button></div></div>';
+    $("gReq").onclick=$("gIn").onclick=()=>{$("dlg").close();view("org")};
+  };
+  const cl=$("call");if(cl)cl.onclick=()=>{
+    $("cx").innerHTML=s.ph?`<div class="panel"><div><b>${esc(first)}</b> · ${esc(s.ph)}</div><a class="btn primary" href="tel:${esc(s.ph.replace(/[^+\d]/g,""))}">Call now</a></div>`:`<p class="note">${esc(first)} hasn’t shared a phone number. Send a message instead.</p>`;
+  };
+}
+function renderMe(){$("preview").innerHTML=`<div class="panel">${cardHTML(store.me)}${achHTML(store.me,true)}</div>`}
+function view(v){
+  ["discover","me","org","admin"].forEach(x=>$(x).classList.toggle("hidden",v!==x));
+  document.querySelectorAll("nav button").forEach(b=>b.dataset.view===v?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));
+  v==="me"?renderMe():v==="org"?renderOrg():v==="admin"?renderAdmin():renderList();window.scrollTo(0,0);
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>view(b.dataset.view));
+$("cats").onclick=e=>{const b=e.target.closest("[data-cat]");if(b){cat=b.dataset.cat;renderCats();renderList()}};
+$("list").onclick=e=>{const c=e.target.closest(".card");if(c)openProfile(c.dataset.id)};
+$("q").oninput=renderList;$("grade").onchange=renderList;
+$("onlyShort").onclick=e=>{showShort=!showShort;e.currentTarget.setAttribute("aria-pressed",showShort);renderList()};
+$("aCat").innerHTML=CATS.map(c=>`<option>${esc(c[0])}</option>`).join("")+"<option>Other</option>";
+[["pName","name"],["pSchool","school"],["pPhone","ph"],["pBio","bio"]].forEach(([id,k])=>{$(id).value=store.me[k]||"";$(id).oninput=()=>{store.me[k]=$(id).value;save();renderMe()}});
+$("pGrade").value=store.me.grade;$("pGrade").onchange=()=>{store.me.grade=+$("pGrade").value;save();renderMe()};
+$("addA").onclick=()=>{
+  const t=$("aTitle").value.trim();
+  if(!t){$("aErr").textContent="Add a title first.";$("aTitle").focus();return}
+  if(!store.me.name.trim()){toast("Enter your name so reviewers know who you are");$("pName").focus();return}
+  const catV=$("aCat").value==="Other"?$("aCatO").value.trim():$("aCat").value,tyV=$("aType").value==="Other"?$("aTypeO").value.trim():$("aType").value;
+  if(!catV||!tyV){$("aErr").textContent="Please specify the field or type you chose as Other.";return}
+  store.me.ach.push({t,c:catV,ty:tyV,y:+$("aYear").value||2026,by:$("aBy").value.trim(),d:$("aDesc").value.trim(),v:0,ev:pendingEv});pendingEv=null;$("scanSt").textContent="";
+  store.me.h=hue(store.me.ach[0].c);
+  ["aTitle","aBy","aDesc","aCatO","aTypeO"].forEach(i=>$(i).value="");$("aCat").selectedIndex=0;$("aType").selectedIndex=0;syncOther();$("aErr").textContent="";$("aDlg").close();save();renderMe();toast("Achievement added");
+};
+$("preview").onclick=e=>{const d=e.target.closest("[data-del]");if(d){store.me.ach.splice(+d.dataset.del,1);save();renderMe();toast("Achievement removed")}};
+["+91 90000 00001","+91 90000 00002","+91 90000 00003","+91 90000 00004",""].forEach((p,i)=>seed[i].ph=p);
+/* ---- Organizations: verified access ---- */
+store.requests=store.requests||[];store.orgs=store.orgs||[];
+if(store.session&&!store.orgs.some(o=>o.id===store.session&&!o.revoked))store.session=null;
+const FREE=["gmail.com","yahoo.com","yahoo.in","outlook.com","hotmail.com","live.com","icloud.com","proton.me","protonmail.com","rediffmail.com","aol.com","mail.com"];
+const OTYPES=["University","College or school","Company","NGO or foundation","Government body","Other"];
+const rnd6=()=>String(100000+crypto.getRandomValues(new Uint32Array(1))[0]%900000);
+const rid=p=>p+"-"+Math.random().toString(36).slice(2,8).toUpperCase();
+const codeGen=()=>Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b%32]).join("");
+const hostOf=u=>{try{return new URL(/^https?:\/\//i.test(u)?u:"https://"+u).hostname.replace(/^www\./,"")}catch(e){return""}};
+const domOk=(em,w)=>{const e=(em.split("@")[1]||"").toLowerCase();return !!w&&(e===w||e.endsWith("."+w))};
+let W;function resetW(){W={step:1,d:{type:"University"},docs:{},sig:null,codes:null,ev:false,pv:false,err:"",done:null}}resetW();
+function v1(){const d=W.d;
+  for(const [k,l] of [["legalName","legal name"],["country","country"],["website","website"],["regNo","registration number"],["email","official email"],["phone","official phone number"]])if(!(d[k]||"").trim())return "Enter the "+l+".";
+  if(d.type==="Other"&&!(d.typeO||"").trim())return "Please specify the organization type.";
+  const w=hostOf(d.website.trim());if(!w||!w.includes("."))return "Enter a valid website address.";
+  const em=d.email.trim().toLowerCase(),m=em.match(/^[^@\s]+@([^@\s]+\.[^@\s]+)$/);
+  if(!m)return "Enter a valid email address.";
+  if(FREE.includes(m[1]))return "Use an official email on your organization’s own domain, not a free email address.";
+  if(!domOk(em,w))return "Your email domain ("+m[1]+") must match your website ("+w+").";
+  if(!/^[+\d][\d\s-]{6,}$/.test(d.phone.trim()))return "Enter a valid phone number.";
+  return ""}
+function v2(){const d=W.d;
+  if(!(d.rep||"").trim())return "Enter the authorized person’s name.";
+  if(!(d.role||"").trim())return "Enter their designation.";
+  if(!W.docs.reg)return "Upload the registration or accreditation certificate.";
+  if(!W.docs.auth)return "Upload the signed authorization letter.";
+  if(!W.sig)return "The authorized person must sign in the box.";
+  if(!d.confirm)return "Please tick the confirmation.";
+  return ""}
+function fld(l,k,ph,t){return `<label class="field">${l}<input data-k="${k}" type="${t||"text"}" maxlength="120" value="${esc(W.d[k]||"")}" placeholder="${esc(ph||"")}"></label>`}
+function renderWiz(){
+  const box=$("orgBox");
+  if(store.session){box.innerHTML="";box.classList.add("hidden");return}
+  box.classList.remove("hidden");
+  if(W.done){box.innerHTML=`<div class="panel"><h2>Request received</h2><p style="margin:0">Your reference ID is <span class="code">${esc(W.done)}</span>. Keep it to check your status. Our team will review your documents and may call your organization on a number from your official website. You can message and call students once you are approved.</p><button class="btn" data-act="again">Start another request</button></div>`;return}
+  const d=W.d;
+  if(W.codes&&W.codes.f!==d.email+"|"+d.phone){W.codes=null;W.ev=W.pv=false}
+  const st=["Organization","Documents and signature","Verification"];
+  let h=`<div class="panel"><h2>Request an organization account</h2><div class="steps">${st.map((s,i)=>`<span class="${i+1===W.step?"on":i+1<W.step?"done":""}">${i+1}. ${s}</span>`).join("")}</div>`;
+  if(W.step===1){
+    h+=fld("Legal name of organization","legalName","As on your registration certificate")
+     +`<div class="f2"><label class="field">Type<select data-k="type">${OTYPES.map(o=>`<option${d.type===o?" selected":""}>${o}</option>`).join("")}</select></label>${fld("Country","country","")}</div>`
+     +(d.type==="Other"?fld("Please specify type","typeO",""):"")
+     +fld("Official website","website","e.g. www.youruniversity.edu")
+     +fld("Registration or accreditation number","regNo","e.g. CIN, UGC or AICTE code")
+     +fld("Official email","email","name@yourwebsite.edu","email")
+     +fld("Official phone number","phone","With country code","tel")
+     +`<p class="note" style="margin:0">Your email must be on the same domain as your website. Free email addresses are not accepted.</p>`;
+  }else if(W.step===2){
+    h+=`<div class="f2">${fld("Authorized person’s full name","rep","")}${fld("Designation","role","e.g. Director of Admissions")}</div>`
+     +["reg","auth"].map(k=>{const t=k==="reg"?"Registration or accreditation certificate":"Authorization letter on letterhead, signed and stamped";return `<label class="field">${t}<input type="file" data-doc="${k}" accept="application/pdf,image/*"></label>${W.docs[k]?`<div class="note">Attached: ${esc(W.docs[k].name)}</div>`:""}`}).join("")
+     +`<div class="field">Signature of the authorized person<canvas class="sig" id="sig" aria-label="Signature pad"></canvas></div><div class="row" style="justify-content:space-between;align-items:center"><span class="note">Sign with your finger or mouse.</span><button class="btn" data-act="clearsig">Clear</button></div>`
+     +`<label class="cb"><input type="checkbox" data-k="confirm"${d.confirm?" checked":""}><span>I confirm that I am authorized to act for this organization and that the documents and signature are genuine.</span></label>`;
+  }else{
+    if(!W.codes)h+=`<p style="margin:0">We will send one code to <b>${esc(d.email)}</b> and another to <b>${esc(d.phone)}</b> to confirm you control both.</p><button class="btn primary" data-act="send">Send verification codes</button>`;
+    else h+=`<div class="demo">Demo mode: in the live product these arrive by email and SMS. Email code <span class="code">${W.codes.e}</span> · Phone code <span class="code">${W.codes.p}</span></div>`
+      +`<div class="f2">${W.ev?`<p class="note">✓ Email verified</p>`:fld("Email code","eIn","6 digits")}${W.pv?`<p class="note">✓ Phone verified</p>`:fld("Phone code","pIn","6 digits")}</div>`
+      +((W.ev&&W.pv)?"":`<button class="btn" data-act="verify">Verify codes</button>`)
+      +`<label class="cb"><input type="checkbox" data-k="conduct"${d.conduct?" checked":""}><span>We agree to the child-safety code of conduct: we will only contact students about genuine educational, career or talent opportunities, and will not share their details.</span></label>`;
+  }
+  h+=`<p class="flag" role="alert">${esc(W.err||"")}</p><div class="row" style="justify-content:space-between">${W.step>1?'<button class="btn" data-act="back">Back</button>':"<span></span>"}<button class="btn primary" data-act="${W.step<3?"next":"submit"}">${W.step<3?"Continue":"Submit request"}</button></div></div>`;
+  box.innerHTML=h;
+  if(W.step===2)initSig();
+}
+function initSig(){
+  const c=$("sig"),r=c.getBoundingClientRect();c.width=Math.round(r.width*2);c.height=Math.round(r.height*2);
+  const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.lineWidth=4;g.lineCap="round";g.lineJoin="round";g.strokeStyle="#14213d";
+  if(W.sig){const im=new Image();im.onload=()=>g.drawImage(im,0,0,c.width,c.height);im.src=W.sig}
+  let down=false;const pt=e=>{const b=c.getBoundingClientRect();return[(e.clientX-b.left)*c.width/b.width,(e.clientY-b.top)*c.height/b.height]};
+  c.onpointerdown=e=>{down=true;c.setPointerCapture(e.pointerId);const[x,y]=pt(e);g.beginPath();g.moveTo(x,y);g.lineTo(x+.1,y);g.stroke()};
+  c.onpointermove=e=>{if(!down)return;const[x,y]=pt(e);g.lineTo(x,y);g.stroke()};
+  const end=()=>{if(!down)return;down=false;W.sig=c.toDataURL("image/png")};
+  c.onpointerup=end;c.onpointercancel=end;
+}
+function onOrgIn(e){
+  const t=e.target;
+  if(t.dataset.doc){const f=t.files&&t.files[0];if(f){if(f.size>8e6)W.err="That file is too large (max 8 MB).";else{W.docs[t.dataset.doc]={name:f.name,size:f.size};W.err=""}renderWiz()}return}
+  const k=t.dataset.k;if(!k)return;
+  W.d[k]=t.type==="checkbox"?t.checked:t.value;
+  if(k==="type"&&e.type==="change")renderWiz();
+}
+$("orgBox").oninput=onOrgIn;$("orgBox").onchange=onOrgIn;
+$("orgBox").onclick=e=>{
+  const a=e.target.closest("[data-act]");if(!a)return;const act=a.dataset.act;W.err="";
+  if(act==="back"){W.step--;renderWiz()}
+  else if(act==="next"){const m=W.step===1?v1():v2();if(m)W.err=m;else W.step++;renderWiz()}
+  else if(act==="clearsig"){W.sig=null;initSig()}
+  else if(act==="send"){W.codes={e:rnd6(),p:rnd6(),f:W.d.email+"|"+W.d.phone};W.ev=W.pv=false;renderWiz()}
+  else if(act==="verify"){
+    if(!W.ev&&(W.d.eIn||"").trim()===W.codes.e)W.ev=true;
+    if(!W.pv&&(W.d.pIn||"").trim()===W.codes.p)W.pv=true;
+    if(!(W.ev&&W.pv))W.err="One or both codes are incorrect. Check and try again.";
+    renderWiz();
+  }
+  else if(act==="submit"){
+    const m=v1()||v2();
+    if(m)W.err="Please go back and fix this: "+m;
+    else if(!(W.ev&&W.pv))W.err="Verify both codes first.";
+    else if(!W.d.conduct)W.err="Please accept the code of conduct.";
+    else{const d=W.d,req={id:rid("REQ"),at:Date.now(),status:"pending",name:d.legalName.trim(),type:d.type==="Other"?d.typeO.trim():d.type,country:d.country.trim(),website:d.website.trim(),regNo:d.regNo.trim(),email:d.email.trim().toLowerCase(),phone:d.phone.trim(),rep:d.rep.trim(),role:d.role.trim(),docs:W.docs,sig:W.sig,ev:true,pv:true};store.requests.push(req);save();resetW();W.done=req.id}
+    renderWiz();
+  }
+  else if(act==="again"){resetW();renderWiz()}
+};
+function renderIn(){
+  const b=$("orgIn");
+  if(store.session){const o=store.orgs.find(x=>x.id===store.session);
+    b.innerHTML=`<div class="panel"><h2>Signed in</h2><p style="margin:0"><b>${esc(o?o.name:"")}</b><br><span class="ver">✓ Verified organization</span></p><p class="note" style="margin:0">You can now message and call students from their profiles.</p><button class="btn" data-act="signout">Sign out</button></div>`;return}
+  b.innerHTML=`<div class="panel"><h2>Sign in</h2><p class="note" style="margin:0">For organizations with an approved account.</p><label class="field">Organization ID<input id="siId" autocomplete="off" placeholder="ORG-XXXXXX"></label><label class="field">Access code<input id="siCode" type="password" autocomplete="off"></label><p class="flag" id="siErr" role="alert"></p><button class="btn primary" data-act="signin">Sign in</button></div><div class="panel" style="margin-top:16px"><h2>Check request status</h2><label class="field">Reference ID<input id="stId" autocomplete="off" placeholder="REQ-XXXXXX"></label><p class="note" id="stOut" aria-live="polite" style="margin:0"></p><button class="btn" data-act="status">Check</button></div>`;
+}
+$("orgIn").onclick=e=>{
+  const a=e.target.closest("[data-act]");if(!a)return;const act=a.dataset.act;
+  if(act==="signout"){store.session=null;save();renderOrg()}
+  else if(act==="signin"){
+    const o=store.orgs.find(x=>x.id===$("siId").value.trim().toUpperCase()&&x.code===$("siCode").value.trim().toUpperCase()&&!x.revoked);
+    if(!o){$("siErr").textContent="Organization ID or access code is incorrect, or the account is not active.";return}
+    store.session=o.id;save();renderOrg();toast("Signed in as "+o.name);
+  }
+  else if(act==="status"){
+    const r=store.requests.find(x=>x.id===$("stId").value.trim().toUpperCase());
+    $("stOut").textContent=!r?"No request found with that ID.":r.status==="pending"?"Pending review by our team.":r.status==="approved"?"Approved. Our team will send your Organization ID and access code to your official email.":"Not approved. Reason: "+r.reason;
+  }
+};
+function renderOrg(){renderIn();renderWiz()}
+function renderAdmin(){
+  const P=store.requests.filter(r=>r.status==="pending"),D=store.requests.filter(r=>r.status!=="pending");
+  const chk=(ok,t)=>`<li class="${ok?"":"flag"}">${ok?"✓":"✕"} ${t}</li>`;
+  const card=r=>`<div class="req"><div><b>${esc(r.name)}</b> <span class="sub">${esc(r.type)} · ${esc(r.country)} · ${esc(r.id)}</span></div>
+  <div class="kv">Website: ${esc(r.website)}<br>Registration no: ${esc(r.regNo)}<br>Email: ${esc(r.email)} · Phone: ${esc(r.phone)}<br>Signatory: ${esc(r.rep)}, ${esc(r.role)}</div>
+  <ul class="checks">${chk(domOk(r.email,hostOf(r.website)),"Email domain matches website")}${chk(r.ev,"Email code verified")}${chk(r.pv,"Phone code verified")}${chk(r.docs.reg&&r.docs.auth,"Documents attached: "+esc(r.docs.reg?r.docs.reg.name:"missing")+", "+esc(r.docs.auth?r.docs.auth.name:"missing"))}${chk(!!r.sig,"Signature captured")}</ul>
+  ${r.sig&&r.sig.startsWith("data:image/png")?`<img class="sigimg" alt="Signature" src="${r.sig}">`:""}
+  <p class="note" style="margin:0">Before approving, call the organization on a number from its official website (not the one in this request) and compare the signature with the authorization letter.</p>
+  <div class="row" style="justify-content:flex-start"><button class="btn primary" data-act="approve" data-r="${r.id}">Approve</button><input class="rj" id="rj_${r.id}" placeholder="Reason if rejecting" aria-label="Rejection reason"><button class="btn" data-act="reject" data-r="${r.id}">Reject</button></div></div>`;
+  const done=r=>{const o=store.orgs.find(x=>x.id===r.orgId);return `<div class="req"><div><b>${esc(r.name)}</b> <span class="sub">${esc(r.id)} · ${esc(r.status)}</span></div>${o?`<div class="kv">Organization ID <span class="code">${esc(o.id)}</span> · Access code <span class="code">${esc(o.code)}</span><br>Send these privately to ${esc(r.email)}.</div><div class="row" style="justify-content:flex-start"><span class="sub">${o.revoked?"Access revoked":"Active"}</span><button class="btn small" data-act="revoke" data-o="${o.id}">${o.revoked?"Restore access":"Revoke access"}</button></div>`:`<div class="kv">Reason: ${esc(r.reason||"")}</div>`}</div>`};
+  $("adminBody").innerHTML=`<h2>Pending (${P.length})</h2>${P.length?P.map(card).join(""):'<p class="note">No pending requests.</p>'}<h2>Decided (${D.length})</h2>${D.length?D.map(done).join(""):'<p class="note">Nothing here yet.</p>'}`;
+}
+$("adminBody").onclick=e=>{
+  const a=e.target.closest("[data-act]");if(!a)return;const act=a.dataset.act,r=store.requests.find(x=>x.id===a.dataset.r);
+  if(act==="approve"&&r){const o={id:rid("ORG"),code:codeGen(),name:r.name,reqId:r.id,revoked:false};store.orgs.push(o);r.status="approved";r.orgId=o.id;save();renderAdmin()}
+  else if(act==="reject"&&r){r.status="rejected";r.reason=$("rj_"+r.id).value.trim()||"We could not verify the organization.";save();renderAdmin()}
+  else if(act==="revoke"){const o=store.orgs.find(x=>x.id===a.dataset.o);if(o){o.revoked=!o.revoked;if(o.revoked&&store.session===o.id)store.session=null;save();renderAdmin()}}
+};
+/* ---- Inbox ---- */
+if(!Array.isArray(store.inbox))store.inbox=[
+ {id:"c1",from:"Admissions Outreach",org:"Ashoka University",unread:1,msgs:[{w:"t",x:"Hi! We came across your profile and would love to tell you about our Young Scholars programme. Are you free for a short call this week?"}]},
+ {id:"c2",from:"Programs Team",org:"Science Talent Foundation",unread:2,msgs:[{w:"t",x:"Congratulations on your achievements. Applications for our summer research mentorship are now open."},{w:"t",x:"The deadline is 30 November. Reply here if you want the application link."}]},
+ {id:"c3",from:"Coach Ramesh",org:"City Sports Academy",unread:0,msgs:[{w:"t",x:"Thanks for connecting. Trials start next month."},{w:"me",x:"Thank you, I’ll be there."}]}];
+let ibCur=null;
+function badge(){const n=store.inbox.reduce((a,c)=>a+c.unread,0),b=$("badge");b.textContent=n;b.classList.toggle("hidden",!n);$("bell").setAttribute("aria-label","Messages, "+n+" unread")}
+function renderIb(){
+  $("ibList").innerHTML=store.inbox.map(c=>{const l=c.msgs[c.msgs.length-1];return `<li><button class="ibi${c.id===ibCur?" on":""}" data-c="${c.id}">${c.unread?`<span class="dot">${c.unread}</span>`:""}<strong>${esc(c.org)}</strong><span class="sn">${esc(c.from)}: ${esc(l?l.x:"")}</span></button></li>`}).join("");
+}
+function renderThread(){
+  const c=store.inbox.find(x=>x.id===ibCur);
+  if(!c){$("ibThread").innerHTML='<p class="note">Select a conversation.</p>';return}
+  $("ibThread").innerHTML=`<button class="btn back" id="ibBack">‹ Back</button><div><strong>${esc(c.org)}</strong><div class="sub">${esc(c.from)}</div></div><div class="msgs" id="msgs">${c.msgs.map(m=>`<div class="bub ${m.w==="me"?"me":"them"}">${esc(m.x)}</div>`).join("")}</div><div class="reply"><textarea id="rT" maxlength="500" aria-label="Reply" placeholder="Write a reply…"></textarea><button class="btn primary" id="rS">Send</button></div>`;
+  const m=$("msgs");m.scrollTop=m.scrollHeight;
+  $("ibBack").onclick=()=>{ibCur=null;$("ib").classList.remove("open");renderIb();renderThread()};
+  $("rS").onclick=()=>{const t=$("rT").value.trim();if(!t){$("rT").focus();return}c.msgs.push({w:"me",x:t});save();renderIb();renderThread();$("rT").focus()};
+}
+function openConv(id){
+  ibCur=id;const c=store.inbox.find(x=>x.id===id);if(c)c.unread=0;save();badge();
+  $("ib").classList.add("open");renderIb();renderThread();
+}
+$("ibList").onclick=e=>{const b=e.target.closest("[data-c]");if(b)openConv(b.dataset.c)};
+$("bell").onclick=()=>{
+  ibCur=null;$("ib").classList.remove("open");renderIb();renderThread();$("inbox").showModal();
+  if(matchMedia("(min-width:601px)").matches&&store.inbox.length){const f=store.inbox.find(c=>c.unread)||store.inbox[0];openConv(f.id)}
+};
+$("ibClose").onclick=()=>$("inbox").close();
+badge();
+/* ---- New achievement dialog ---- */
+function syncOther(){$("aCatW").classList.toggle("hidden",$("aCat").value!=="Other");$("aTypeW").classList.toggle("hidden",$("aType").value!=="Other")}
+$("aCat").onchange=syncOther;$("aType").onchange=syncOther;
+$("newA").onclick=()=>{if(!store.me.name.trim()){toast("Enter your name first so reviewers know who you are");$("pName").focus();return}$("aErr").textContent="";$("aDlg").showModal()};
+$("aClose").onclick=()=>$("aDlg").close();
+/* ---- AI certificate scan ---- */
+let AI=null,pendingEv=null;
+const SCAN_PROMPT=`You are reading an image of a certificate, award, transcript, degree or similar credential submitted by a school student. Extract the details and reply with ONLY a JSON object, no prose and no code fences, with these keys:
+"is_document" (boolean, false if the image is not a certificate, award or credential),
+"recipient_name" (string, name of the person it was issued to, or ""),
+"title" (string, the name of the award, certification or degree, max 90 characters),
+"field" (exactly one of: Academics, Science & Tech, Sports, Arts, Leadership, Service),
+"type" (exactly one of: Award, Certification, Degree, Feat),
+"year" (4-digit number for the issue or event date, or null),
+"issuer" (string, organization that issued it, max 60 characters),
+"event" (string, the competition, event or program, or ""),
+"result" (string, rank, grade, score or level achieved, or ""),
+"summary" (string, one or two plain sentences of at most 150 characters about what was achieved, using only what is visible),
+"concerns" (array of short strings noting anything unreadable, cropped, low quality, edited-looking or inconsistent; empty array if none),
+"confidence" ("high", "medium" or "low").
+Never guess. Use "" or null for anything that is not visible.`;
+(async()=>{try{if(!window.claude)return;const s=await claude.use("sample");if(!s)return;const l=await s.limits();if(l&&l.images){AI=s;$("scan").classList.remove("hidden")}}catch(e){}})();
+async function toCanvas(f){
+  let c=document.createElement("canvas");
+  if(f.type==="application/pdf"){
+    if(!window.pdfjsLib)throw{code:"nopdf"};
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+    const pg=await pdf.getPage(1),v0=pg.getViewport({scale:1}),v=pg.getViewport({scale:1600/Math.max(v0.width,v0.height)});
+    c.width=v.width;c.height=v.height;await pg.render({canvasContext:c.getContext("2d"),viewport:v}).promise;return c;
+  }
+  const b=await createImageBitmap(f),k=Math.min(1,1600/Math.max(b.width,b.height));
+  c.width=Math.round(b.width*k);c.height=Math.round(b.height*k);c.getContext("2d").drawImage(b,0,0,c.width,c.height);return c;
+}
+function thumbOf(cv){const k=240/Math.max(cv.width,cv.height),c=document.createElement("canvas");c.width=Math.round(cv.width*k);c.height=Math.round(cv.height*k);c.getContext("2d").drawImage(cv,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.7)}
+const SCAN_ERR={not_granted:"Scanning needs your permission to use Claude. Reload and allow it, or enter the details by hand.",rate_limited:"Too many scans or your usage limit was reached. Try again later or enter the details by hand.",image_rejected:"This file could not be read as an image. Try a clearer JPG, PNG or PDF.",invalid_json:"Claude could not read this certificate. Try a sharper, well-lit photo.",refused:"This file could not be processed. Try a different certificate image.",empty_completion:"Nothing could be read from this file. Try a clearer photo.",nopdf:"PDF reading is unavailable here. Upload a photo or screenshot instead."};
+$("cert").onchange=async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f||!AI)return;
+  const st=$("scanSt"),btn=$("certBtn");st.textContent="Preparing your file…";btn.setAttribute("aria-disabled","true");btn.style.opacity=.5;btn.style.pointerEvents="none";
+  try{
+    let cv;try{cv=await toCanvas(f)}catch(x){throw x.code?x:{code:"image_rejected"}}
+    const blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",.85));
+    st.textContent="Claude is reading the certificate. This can take up to a minute.";
+    const r=await AI.json(SCAN_PROMPT,{images:[blob],modelTier:"default"});
+    if(!r||r.is_document===false){st.textContent="This doesn’t look like a certificate or award. Try another file.";return}
+    const cats=CATS.map(c=>c[0]),types=["Award","Certification","Degree","Feat"];
+    $("aTitle").value=String(r.title||"").slice(0,90);
+    $("aCat").value=cats.includes(r.field)?r.field:"Academics";
+    $("aType").value=types.includes(r.type)?r.type:"Certification";
+    const y=+r.year;if(y>=2000&&y<=2026)$("aYear").value=y;
+    $("aBy").value=String(r.issuer||"").slice(0,60);syncOther();
+    $("aDesc").value=[r.event&&"Event: "+r.event,r.result&&"Result: "+r.result,r.summary].filter(Boolean).join(". ").slice(0,200);
+    pendingEv=thumbOf(cv);
+    const flags=Array.isArray(r.concerns)?r.concerns.slice(0,4).map(String):[];
+    const mine=store.me.name.toLowerCase().split(/\s+/).filter(w=>w.length>1),theirs=String(r.recipient_name||"").toLowerCase();
+    if(theirs&&mine.length&&!mine.some(w=>theirs.includes(w)))flags.unshift("The name on the certificate ("+r.recipient_name+") doesn’t match your profile name.");
+    st.innerHTML="Done. Confidence: <b>"+esc(r.confidence||"unknown")+"</b>. Check the fields below, fix anything that’s wrong, then add the achievement."+flags.map(x=>`<p class="flag">${esc(x)}</p>`).join("");
+  }catch(err){
+    st.textContent=SCAN_ERR[err&&err.code]||(err&&err.code==="cancelled"?"":"Something went wrong while reading the file. Try again or enter the details by hand.");
+  }finally{btn.removeAttribute("aria-disabled");btn.style.opacity="";btn.style.pointerEvents=""}
+};
+renderCats();renderList();
+</script>
+</body>
+</html>
